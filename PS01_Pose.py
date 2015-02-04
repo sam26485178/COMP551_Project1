@@ -70,7 +70,9 @@ def topolar(x, y):
 # return a tuple of the form: (goal_distance, goal_heading, robot_heading)
 def compute_goal_distance_and_heading(goal_position, robot_pose):
     # student code start
-
+    goal_distance = math.sqrt((goal_position[0] - robot_pose[0])**2.0 + (goal_position[1] - robot_pose[1])**2.0)
+    goal_heading = math.atan2(goal_position[1] - robot_pose[1], goal_position[0] - robot_pose[0])
+    robot_heading = robot_pose[2]
     # student code end
     return (goal_distance, goal_heading, robot_heading)
 
@@ -79,7 +81,12 @@ def compute_goal_distance_and_heading(goal_position, robot_pose):
 # This difference will lie between (-pi, pi]
 def smallest_angle_diff(current_angle, goal_angle):
     # student code start
-
+    diff = goal_angle - current_angle
+    #diff = (diff + math.pi) % (2 * math.pi) - math.pi
+    if diff > math.pi:
+        diff = diff - 2*math.pi
+    if diff < -math.pi:
+        diff = diff + 2*math.pi
     # student code end
     return diff
 
@@ -88,7 +95,11 @@ def smallest_angle_diff(current_angle, goal_angle):
 # this should match the plot from the handout
 def motion_controller_tv(d, tv_max):
     # student code start
-
+    tvtemp = MOTION_TV_GAIN * d + MOTION_TV_MIN
+    if tvtemp <= tv_max:
+        tv = tvtemp
+    else:
+        tv = tv_max
     # student code end
     return tv
 
@@ -97,7 +108,10 @@ def motion_controller_tv(d, tv_max):
 # this should bound the value to MOTION_RV_MAX
 def motion_controller_rv(heading, heading_to_goal):
     # student code start
-
+    theta = smallest_angle_diff(heading, heading_to_goal)
+    rvt = MOTION_RV_GAIN * theta
+    rv = math2.bound(rvt, MOTION_RV_MAX)
+    bearing_error = rvt - rv
     # student code end
     return (rv, bearing_error)
 

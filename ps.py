@@ -13,7 +13,7 @@ def move_stop(time):
     # student code start
     rone.motor_set_pwm('r', 0);
     rone.motor_set_pwm('l', 0);
-    sys.sleep(time);
+    sys.sleep(abs(time))
     # student code start
     
 
@@ -205,11 +205,11 @@ def obstacle_avoid():
         print obs_front, obs_left, obs_right
         # student code start
         if (obs_left):
-            move_forward(-500)
-            move_rotate_right(800)
+            move_forward(-200)
+            move_rotate_right(700)
         elif (obs_right or obs_front):
-            move_forward(-500)
-            move_rotate_left(800)
+            move_forward(-200)
+            move_rotate_left(700)
         else:
             move_forward(500)
         # student code end
@@ -221,7 +221,7 @@ def main():
 
 ########  Initial function calls to test different parts of the code ########
 #move_test()
-square_motion()
+#square_motion()
 
 #light_diff_test()
 #light_follow()
@@ -230,4 +230,4 @@ square_motion()
 #bump_avoid()
 
 #obstacle_detect_test()
-#obstacle_avoid()
+obstacle_avoid()
