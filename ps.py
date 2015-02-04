@@ -37,12 +37,8 @@ def move_forward(time):
 # return: nothing
 def move_rotate_right(time):
     # student code start
-    if time < 0:
-        rone.motor_set_pwm('r', 0)
-        rone.motor_set_pwm('l', 0 - MOTOR_PWM)
-    else:
-        rone.motor_set_pwm('r', 0)
-        rone.motor_set_pwm('l', MOTOR_PWM)
+    rone.motor_set_pwm('r', 0)
+    rone.motor_set_pwm('l', MOTOR_PWM)
     sys.sleep(abs(time))
     # student code end
     
@@ -52,12 +48,8 @@ def move_rotate_right(time):
 # return: nothing
 def move_rotate_left(time):
     # student code start
-    if time < 0:
-        rone.motor_set_pwm('r', 0 - MOTOR_PWM)
-        rone.motor_set_pwm('l', 0)
-    else:
-        rone.motor_set_pwm('r', MOTOR_PWM)
-        rone.motor_set_pwm('l', 0)
+    rone.motor_set_pwm('r', MOTOR_PWM)
+    rone.motor_set_pwm('l', 0)
     sys.sleep(abs(time))
     # student code end
 
@@ -109,9 +101,9 @@ def light_follow():
         tmp = diff_start
         diff_start = light_diff()
         if (diff_start > 2):
-            move_rotate_left(abs(diff+tmp)/2)
+            move_rotate_left(abs(diff+tmp))
         elif (diff_start < -2):
-            move_rotate_right(abs(diff+tmp)/2)
+            move_rotate_right(abs(diff+tmp))
         else:
             move_forward(200)
         # student code end
@@ -221,13 +213,13 @@ def main():
 
 ########  Initial function calls to test different parts of the code ########
 #move_test()
-#square_motion()
+square_motion()
 
 #light_diff_test()
 #light_follow()
 
 #bump_test()        
-#bump_avoid()
+# bump_avoid()
 
 #obstacle_detect_test()
-obstacle_avoid()
+#obstacle_avoid()

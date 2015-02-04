@@ -27,21 +27,15 @@ def pose_update(pose_state):
     # 5. Compute the distance traveled by the center of the robot in millimeters
     dC = 0.5 * (dL + dR) 
     # 6. Add the distance to the odometer variable in pose_state
-    pose_state['odometer'] += dC
+    pose_state['odometer'] += abs(dC)
     # 7. compute the arc angle in radians
     # don't call atan here, use the small angle approximation: arctan(theta) ~ theta
     theta = (dR - dL) / WHEEL_BASE
     # 8. finally, update x, y, and theta, and save them to the pose state
     # use math2.normalize_angle() to normalize theta before storing it in the pose_state
-    pos = poseX.get_pose()
-    x = pos[0]
-    y = pos[1]
-    t = pos[2]
-    t += theta
-    t = math2.normalize_angle(t)
-    x = dC * math.cos(t) + x
-    y = dC * math.sin(t) + y
-    poseX.set_pose(x, y, t)
+    pose_state['theta'] = math2.normalize_angle(pose_state['theta'] + theta)
+    pose_state['x'] += dC * math.cos(pose_state['theta'])
+    pose_state['y'] += dC * math.sin(pose_state['theta'])
 
 
 
@@ -70,8 +64,7 @@ def topolar(x, y):
 # return a tuple of the form: (goal_distance, goal_heading, robot_heading)
 def compute_goal_distance_and_heading(goal_position, robot_pose):
     # student code start
-    goal_distance = math.sqrt((goal_position[0] - robot_pose[0])**2.0 + (goal_position[1] - robot_pose[1])**2.0)
-    goal_heading = math.atan2(goal_position[1] - robot_pose[1], goal_position[0] - robot_pose[0])
+    [goal_distance, goal_heading] = topolar((goal_position[0] - robot_pose[0]), goal_position[1] - robot_pose[1])
     robot_heading = robot_pose[2]
     # student code end
     return (goal_distance, goal_heading, robot_heading)
@@ -82,7 +75,6 @@ def compute_goal_distance_and_heading(goal_position, robot_pose):
 def smallest_angle_diff(current_angle, goal_angle):
     # student code start
     diff = goal_angle - current_angle
-    #diff = (diff + math.pi) % (2 * math.pi) - math.pi
     if diff > math.pi:
         diff = diff - 2*math.pi
     if diff < -math.pi:
@@ -96,10 +88,7 @@ def smallest_angle_diff(current_angle, goal_angle):
 def motion_controller_tv(d, tv_max):
     # student code start
     tvtemp = MOTION_TV_GAIN * d + MOTION_TV_MIN
-    if tvtemp <= tv_max:
-        tv = tvtemp
-    else:
-        tv = tv_max
+    tv = velocity.clamp(tvtemp, tv_max)
     # student code end
     return tv
 
@@ -108,12 +97,12 @@ def motion_controller_tv(d, tv_max):
 # this should bound the value to MOTION_RV_MAX
 def motion_controller_rv(heading, heading_to_goal):
     # student code start
-    theta = smallest_angle_diff(heading, heading_to_goal)
-    rvt = MOTION_RV_GAIN * theta
+    bearing_error = smallest_angle_diff(heading, heading_to_goal)
+    rvt = MOTION_RV_GAIN * bearing_error
     rv = math2.bound(rvt, MOTION_RV_MAX)
-    bearing_error = rvt - rv
     # student code end
     return (rv, bearing_error)
+
 
 
 
@@ -174,7 +163,8 @@ def waypoint_motion():
         if rone.button_get_value('r'):
             if mode == MODE_INACTIVE:
                 poseX.set_pose(0, 0, 0)
-                waypoint_list = [(608, 0), (608, 304), (0, 304), (0, 0)]
+                #waypoint_list = [(608, 0), (608, 304), (0, 304), (0, 0)]
+                waypoint_list = [(700, 0), (700, 700), (0, 700), (0, 0)]
                 mode = MODE_ACTIVE
             
         # check to see if you are at your waypoint.  If so, go to the next one
